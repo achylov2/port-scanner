@@ -1,11 +1,19 @@
 import socket
+import sys
+import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from colorama import Fore, init
 from tqdm import tqdm
 
 init(autoreset=True)
 
-PORT_FILE = "all_ports_0-65535.txt"
+# 📦 универсальный путь (работает и в exe и в .py)
+def get_path(filename):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, filename)
+    return os.path.join(os.path.abspath("."), filename)
+
+PORT_FILE = get_path("all_ports_0-65535.txt")
 OUTPUT_FILE = "open_ports.txt"
 
 TIMEOUT = 0.5
@@ -29,9 +37,14 @@ def main():
     # 👉 Ввод IP
     ip = input("🌍 Введи IP адрес: ")
 
-    # 👉 Загружаем порты
-    with open(PORT_FILE, "r") as f:
-        ports = [int(p.strip()) for p in f.read().split(",")]
+    # 👉 Загружаем порты (теперь работает в exe)
+    try:
+        with open(PORT_FILE, "r") as f:
+            ports = [int(p.strip()) for p in f.read().split(",")]
+    except:
+        print(Fore.RED + "❌ Не найден файл портов!")
+        input("Нажми Enter для выхода...")
+        return
 
     open_ports = []
 
